@@ -1,0 +1,29 @@
+name: Wake Streamlit App
+
+on:
+  schedule:
+    # Runs every 6 hours (well under Streamlit's 12-hour sleep threshold)
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}  # lets you trigger it manually from the Actions tab
+
+jobs:
+  wake:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: Run keep-awake script
+        env:
+          STREAMLIT_URL: "https://school-erp-mini-system.streamlit.app"
+        run: python keep_awake.py
